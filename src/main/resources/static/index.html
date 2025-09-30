@@ -1,1 +1,446 @@
-<h3>Hello GitHub Flow!</h3>
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>じゃんけん — Janken</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root {
+      --bg: #0f172a;
+      /* 背景 */
+      --panel: #111827;
+      /* 面板 */
+      --accent: #22d3ee;
+      /* 強調 */
+      --text: #e5e7eb;
+      /* 字色 */
+      --muted: #94a3b8;
+      /* 次要字色 */
+      --win: #22c55e;
+      --lose: #ef4444;
+      --draw: #f59e0b;
+      --btn: #1f2937;
+      --btn-hover: #374151;
+      --ring: #22d3ee55;
+    }
+
+    * {
+      box-sizing: border-box
+    }
+
+    html,
+    body {
+      height: 100%
+    }
+
+    body {
+      margin: 0;
+      background: radial-gradient(80vw 80vh at 50% -20%, #0b1020, var(--bg));
+      color: var(--text);
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji";
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .app {
+      width: min(980px, 100%);
+      display: grid;
+      gap: 16px;
+      grid-template-columns: 1fr;
+      grid-auto-rows: min-content;
+    }
+
+    .card {
+      background: linear-gradient(180deg, #0f172a, #0b1222);
+      border: 1px solid #1f2937;
+      border-radius: 16px;
+      padding: 16px;
+      box-shadow: 0 6px 26px #00000088, 0 0 0 1px #00000066 inset;
+    }
+
+    .title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px
+    }
+
+    .title h1 {
+      margin: 0;
+      font-size: 22px;
+      letter-spacing: 0.3px
+    }
+
+    .title small {
+      color: var(--muted)
+    }
+
+    .board {
+      display: grid;
+      gap: 16px;
+      grid-template-columns: 1fr 1fr;
+      align-items: center;
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid #223;
+      border-radius: 12px;
+      padding: 16px;
+      min-height: 180px;
+      display: grid;
+      grid-template-rows: auto 1fr;
+      gap: 8px;
+    }
+
+    .panel h2 {
+      margin: 0;
+      font-size: 16px;
+      color: var(--muted);
+      font-weight: 600
+    }
+
+    .who {
+      display: flex;
+      align-items: center;
+      gap: 8px
+    }
+
+    .slot {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 110px;
+      border: 1px dashed #334155;
+      border-radius: 10px;
+      background: linear-gradient(180deg, #0c1424, #0a1020);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .slot img {
+      max-width: 120px;
+      max-height: 120px;
+      filter: drop-shadow(0 10px 20px #0007)
+    }
+
+    .slot .placeholder {
+      color: #475569
+    }
+
+    .result {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 14px;
+      border-radius: 12px;
+      border: 1px solid #1f2937;
+      background: linear-gradient(180deg, #0b1222, #0a0f1c);
+      font-weight: 700;
+      letter-spacing: 0.4px;
+    }
+
+    .result.win {
+      border-color: #125b2b;
+      box-shadow: 0 0 0 4px #22c55e22 inset;
+      color: var(--win)
+    }
+
+    .result.lose {
+      border-color: #6a1212;
+      box-shadow: 0 0 0 4px #ef444422 inset;
+      color: var(--lose)
+    }
+
+    .result.draw {
+      border-color: #5a3a12;
+      box-shadow: 0 0 0 4px #f59e0b22 inset;
+      color: var(--draw)
+    }
+
+    .choices {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      border-radius: 12px;
+      border: 1px solid #263041;
+      background: linear-gradient(180deg, #161e2e, #101728);
+      padding: 12px;
+      cursor: pointer;
+      transition: transform .06s ease, box-shadow .12s ease, border-color .12s ease;
+      user-select: none;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      border-color: #334155;
+      box-shadow: 0 10px 30px #0008, 0 0 0 2px var(--ring)
+    }
+
+    .btn:active {
+      transform: translateY(0)
+    }
+
+    .btn img {
+      width: 72px;
+      height: 72px;
+      object-fit: contain
+    }
+
+    .btn span {
+      font-weight: 600
+    }
+
+    .score {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 14px;
+      border: 1px solid #1f2937;
+      border-radius: 12px;
+      background: linear-gradient(180deg, #0c1424, #0a1020);
+    }
+
+    .score .meter {
+      display: flex;
+      gap: 12px;
+      align-items: center
+    }
+
+    .badge {
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: .3px;
+      border: 1px solid #2b3b4e
+    }
+
+    .b-win {
+      color: var(--win);
+      background: #052a13
+    }
+
+    .b-lose {
+      color: var(--lose);
+      background: #2a0808
+    }
+
+    .b-draw {
+      color: var(--draw);
+      background: #2b1e06
+    }
+
+    .actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap
+    }
+
+    .ghost {
+      background: transparent;
+      color: var(--text);
+      border: 1px dashed #334155;
+      padding: 10px 14px;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+
+    .primary {
+      background: linear-gradient(180deg, #0ea5b0, #0891a2);
+      color: #001016;
+      border: 1px solid #0ea5b0;
+      padding: 10px 14px;
+      border-radius: 10px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    @media (max-width: 760px) {
+      .board {
+        grid-template-columns: 1fr
+      }
+
+      .slot img {
+        max-width: 96px;
+        max-height: 96px
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="app">
+    <div class="card title">
+      <h1>じゃんけん — Janken <small>（石頭・剪刀・布）</small></h1>
+      <small>遵循 GitHub Flow：分支 → 修改 → PR → Merge</small>
+    </div>
+
+    <div class="card board">
+      <!-- 左：玩家／電腦出拳 -->
+      <section class="panel">
+        <div class="who">
+          <h2>出拳</h2><small style="color:var(--muted)">請選擇你的手勢</small>
+        </div>
+        <div class="choices">
+          <button class="btn" data-choice="rock" aria-label="Rock">
+            <img src="./img/rock.png" alt="Rock" />
+            <span>石頭</span>
+          </button>
+          <button class="btn" data-choice="scissors" aria-label="Scissors">
+            <img src="./img/scissors.png" alt="Scissors" />
+            <span>剪刀</span>
+          </button>
+          <button class="btn" data-choice="paper" aria-label="Paper">
+            <img src="./img/paper.png" alt="Paper" />
+            <span>布</span>
+          </button>
+        </div>
+      </section>
+
+      <!-- 右：當前回合結果 -->
+      <section class="panel">
+        <div class="who">
+          <h2>結果</h2>
+        </div>
+        <div class="slot" id="arena">
+          <div class="placeholder">請出拳開始對戰</div>
+        </div>
+      </section>
+    </div>
+
+    <!-- 計分與操作 -->
+    <div class="card score">
+      <div class="meter">
+        <span class="badge b-win">WIN <span id="win">0</span></span>
+        <span class="badge b-lose">LOSE <span id="lose">0</span></span>
+        <span class="badge b-draw">DRAW <span id="draw">0</span></span>
+      </div>
+      <div class="actions">
+        <button class="ghost" id="undo" title="復原上一步（僅本機記錄）">復原一步</button>
+        <button class="primary" id="reset">重置分數</button>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    // --- 狀態 ---
+    const state = {
+      win: 0, lose: 0, draw: 0,
+      history: [] // 紀錄每回合：{you, cpu, result}
+    };
+
+    const arena = document.getElementById('arena');
+    const $win = document.getElementById('win');
+    const $lose = document.getElementById('lose');
+    const $draw = document.getElementById('draw');
+    const $reset = document.getElementById('reset');
+    const $undo = document.getElementById('undo');
+
+    const CHOICES = ['rock', 'scissors', 'paper'];
+    const LABELS = { rock: '石頭', scissors: '剪刀', paper: '布' };
+    const ICON = {
+      rock: './img/rock.png',
+      scissors: './img/scissors.png',
+      paper: './img/paper.png'
+    };
+
+    // 勝負規則：you vs cpu
+    // 回傳 'win' | 'lose' | 'draw'
+    function judge(you, cpu) {
+      if (you === cpu) return 'draw';
+      if (
+        (you === 'rock' && cpu === 'scissors') ||
+        (you === 'scissors' && cpu === 'paper') ||
+        (you === 'paper' && cpu === 'rock')
+      ) return 'win';
+      return 'lose';
+    }
+
+    function randomCPU() {
+      const i = Math.floor(Math.random() * CHOICES.length);
+      return CHOICES[i];
+    }
+
+    function renderArena(you, cpu, result) {
+      arena.innerHTML = `
+        <div class="result ${result}">
+          <span>${result === 'win' ? 'YOU WIN! 🎉' : result === 'lose' ? 'YOU LOSE… 😵' : 'DRAW 😐'}</span>
+        </div>
+        <div style="display:grid; grid-template-columns:1fr 40px 1fr; align-items:center; gap:12px; padding:12px;">
+          <div style="text-align:center">
+            <div style="font-size:12px; color:#94a3b8; margin-bottom:6px;">あなた</div>
+            <img src="${ICON[you] || ''}" alt="${LABELS[you] || ''}" onerror="this.replaceWith(document.createTextNode('${LABELS[you] || ''}'))">
+            <div style="margin-top:6px">${LABELS[you] || ''}</div>
+          </div>
+          <div style="text-align:center; color:#94a3b8;">vs</div>
+          <div style="text-align:center">
+            <div style="font-size:12px; color:#94a3b8; margin-bottom:6px;">CPU</div>
+            <img src="${ICON[cpu] || ''}" alt="${LABELS[cpu] || ''}" onerror="this.replaceWith(document.createTextNode('${LABELS[cpu] || ''}'))">
+            <div style="margin-top:6px">${LABELS[cpu] || ''}</div>
+          </div>
+        </div>
+      `;
+    }
+
+    function updateScore(result) {
+      state[result] += 1;
+      $win.textContent = state.win;
+      $lose.textContent = state.lose;
+      $draw.textContent = state.draw;
+    }
+
+    function onPlay(you) {
+      const cpu = randomCPU();
+      const result = judge(you, cpu);
+      state.history.push({ you, cpu, result });
+      renderArena(you, cpu, result);
+      updateScore(result);
+    }
+
+    function resetScore() {
+      state.win = state.lose = state.draw = 0;
+      state.history = [];
+      $win.textContent = $lose.textContent = $draw.textContent = '0';
+      arena.innerHTML = `<div class="placeholder">請出拳開始對戰</div>`;
+    }
+
+    function undoOne() {
+      const last = state.history.pop();
+      if (!last) return;
+      state[last.result] = Math.max(0, state[last.result] - 1);
+      $win.textContent = state.win;
+      $lose.textContent = state.lose;
+      $draw.textContent = state.draw;
+
+      const prev = state.history[state.history.length - 1];
+      if (prev) {
+        renderArena(prev.you, prev.cpu, prev.result);
+      } else {
+        arena.innerHTML = `<div class="placeholder">請出拳開始對戰</div>`;
+      }
+    }
+
+    // 綁定出拳按鈕
+    document.querySelectorAll('.btn[data-choice]').forEach(btn => {
+      btn.addEventListener('click', () => onPlay(btn.dataset.choice));
+    });
+    $reset.addEventListener('click', resetScore);
+    $undo.addEventListener('click', undoOne);
+  </script>
+</body>
+
+</html>
