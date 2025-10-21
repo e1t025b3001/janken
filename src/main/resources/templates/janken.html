@@ -1,49 +1,44 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<html lang="zh-Hant" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
 
 <head>
-  <meta charset="UTF-8" />
-  <title>じゃんけん</title>
+  <meta charset="utf-8">
+  <title>Janken</title>
 </head>
 
 <body>
+  <h1>じゃんけん</h1>
+  <div>ログインしたユーザー：<span th:text="${loginUser}"></span></div>
+  <div><a href="/logout">登出</a></div>
+  <hr>
 
-  <!-- 登入中のユーザ名（Thymeleaf + Spring Security） -->
-  <p>ログインユーザ：<span sec:authentication="name">anonymous</span></p>
-  <p><a href="/logout">ログアウト</a></p>
+  <h2>Entry（ユーザーリスト）</h2>
+  <ul>
+    <li th:each="u : ${users}">
+      <span th:text="${u.name}"></span>
+      <a th:href="@{/match(id=${u.id})}">對戰</a>
+    </li>
+  </ul>
 
-  <!-- 只有從 /janken（經由 controller 設定 joined=true）才顯示 Hi -->
-  <h2 th:if="${joined}">Hi <span th:text="${username}">ユーザ</span>！</h2>
+  <h2>試合結果</h2>
+  <table border="1" cellpadding="4">
+    <tr>
+      <th>#</th>
+      <th>私</th>
+      <th>対戦相手</th>
+      <th>私の手</th>
+      <th>対戦相手の手</th>
+    </tr>
+    <tr th:each="r, st : ${results}">
+      <td th:text="${st.index}"></td>
+      <td th:text="${r.user1Name}"></td>
+      <td th:text="${r.user2Name}"></td>
+      <td th:text="${r.user1Hand}"></td>
+      <td th:text="${r.user2Hand}"></td>
+    </tr>
+  </table>
 
-  <!-- Entry（ログインして /janken に入ったユーザ一覧） -->
-  <div>
-    <h3>エントリー</h3>
-    <ul>
-      <li th:each="u : ${entries}" th:text="${u}">user</li>
-    </ul>
-    <p style="font-size: 0.9em; color: #666;">※ もう一つのブラウザやシークレットウィンドウで別アカウントでログインすると複数名が表示されます。</p>
-  </div>
-
-  <!-- まだ出していない時：手の選択 -->
-  <div th:if="${result} == null" style="margin-top:1rem;">
-    <p>あなたの手を選んでください：</p>
-    <form th:action="@{/janken/play}" method="post">
-      <button type="submit" name="hand" value="グー">グー</button>
-      <button type="submit" name="hand" value="チョキ">チョキ</button>
-      <button type="submit" name="hand" value="パー">パー</button>
-    </form>
-  </div>
-
-  <!-- 結果表示 -->
-  <div th:if="${result} != null" style="margin-top:1rem;">
-    <p>あなた：<strong th:text="${yourHand}"></strong></p>
-    <p>相手：<strong th:text="${opponent}"></strong></p>
-    <p>結果：<strong th:text="${result}"></strong></p>
-
-    <p><a th:href="@{/janken}">もう一度</a></p>
-    <p><a th:href="@{/index.html}">トップへ</a></p>
-  </div>
-
+  <p><a href="/">back to top</a></p>
 </body>
 
 </html>
