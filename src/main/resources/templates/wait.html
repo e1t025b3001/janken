@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="ja" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+  <meta charset="utf-8">
+  <title>wait</title>
+</head>
+
+<body>
+  <h1>相手の手を待ってます</h1>
+  <p>Hi <span th:text="${loginUser.name}">user</span></p>
+  <div id="out"></div>
+  <p><a href="/janken" id="back" style="display:none;">戻る</a></p>
+  <script>
+    const es = new EventSource('/wait/stream');
+    es.onmessage = (e) => {
+      try {
+        const r = JSON.parse(e.data);
+        document.getElementById('out').textContent =
+          `あなた:${r.user2Hand} / 相手:${r.user1Hand} => 結果:${r.result}`;
+      } catch {
+        document.getElementById('out').textContent = e.data;
+      }
+      document.getElementById('back').style.display = 'block';
+      es.close();
+    };
+    es.onerror = () => es.close();
+  </script>
+</body>
+
+</html>

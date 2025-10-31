@@ -1,32 +1,24 @@
 <!DOCTYPE html>
-<html lang="zh-Hant" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" lang="ja">
 
 <head>
   <meta charset="utf-8">
-  <title>Match</title>
+  <title>match</title>
 </head>
 
 <body>
-  <h1>バトル</h1>
-  <div>ログインユーザー：<span th:text="${loginUser}"></span></div>
-  <div th:if="${errorMsg != null}" style="color:red" th:text="${errorMsg}"></div>
+  <h1>対戦</h1>
+  <p>ログインユーザ：<span th:text="${loginUser.name}"></span></p>
+  <p>vs <span th:text="${opponent.name}"></span></p>
 
-  <div th:if="${errorMsg == null}">
-    <div>
-      <span th:text="${me != null ? me.name : ''}"></span>
-      vs
-      <span th:text="${opponent != null ? opponent.name : ''}"></span>
-    </div>
+  <h3>選択する手：</h3>
+  <ul>
+    <li><a th:href="@{/fight(id=${opponent.id}, hand='Gu')}">グー(Gu)</a></li>
+    <li><a th:href="@{/fight(id=${opponent.id}, hand='Choki')}">チョキ(Choki)</a></li>
+    <li><a th:href="@{/fight(id=${opponent.id}, hand='Pa')}">パー(Pa)</a></li>
+  </ul>
 
-    <h3>あなたの手を選択してください:</h3>
-    <ul>
-      <li><a th:href="@{/fight(id=${opponent.id}, hand='Gu')}">グー(Gu)</a></li>
-      <li><a th:href="@{/fight(id=${opponent.id}, hand='Choki')}">チョキ(Choki)</a></li>
-      <li><a th:href="@{/fight(id=${opponent.id}, hand='Pa')}">パー(Pa)</a></li>
-    </ul>
-  </div>
-
-  <p><a href="/janken">back</a></p>
+  <a href="/janken">戻る</a>
 </body>
 
 </html>

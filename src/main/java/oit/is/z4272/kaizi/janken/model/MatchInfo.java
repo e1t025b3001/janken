@@ -1,11 +1,10 @@
 package oit.is.z4272.kaizi.janken.model;
 
-public class Match {
+public class MatchInfo {
   Integer id;
   Integer user1;
   Integer user2;
   String user1Hand;
-  String user2Hand;
   Boolean isActive;
 
   public Integer getId() {
@@ -38,14 +37,6 @@ public class Match {
 
   public void setUser1Hand(String user1Hand) {
     this.user1Hand = user1Hand;
-  }
-
-  public String getUser2Hand() {
-    return user2Hand;
-  }
-
-  public void setUser2Hand(String user2Hand) {
-    this.user2Hand = user2Hand;
   }
 
   public Boolean getIsActive() {
